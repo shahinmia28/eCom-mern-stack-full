@@ -30,7 +30,7 @@ const productSchema = new Schema(
       required: true,
     },
     images: {
-      type: Array,
+      type: [],
       required: true,
     },
     shipping: {

@@ -33,15 +33,20 @@ export const createProduct = async (req, res, next) => {
     // Images File Handling
     const urls = [];
     const files = req.files;
-    for (const file of files) {
-      const { path } = file;
-      const result = await cloudinary.uploader.upload(path);
-      const data = {
-        url: result.secure_url,
-        public_id: result.public_id,
-      };
-      urls.push(data);
-      fs.unlinkSync(path);
+
+    if (files.length !== 0) {
+      for (const file of files) {
+        const { path } = file;
+        const result = await cloudinary.uploader.upload(path);
+        const data = {
+          url: result.secure_url,
+          public_id: result.public_id,
+        };
+        urls.push(data);
+        fs.unlinkSync(path);
+      }
+    } else {
+      return res.status(500).send({ message: 'All fields are required' });
     }
 
     // Check if Product Already Exists
@@ -66,6 +71,12 @@ export const createProduct = async (req, res, next) => {
     });
 
     await product.save();
+    if (!product) {
+      for (const url of urls) {
+        const { public_id } = url;
+        await cloudinary.uploader.destroy(public_id);
+      }
+    }
 
     res.status(201).send({
       success: true,
@@ -76,55 +87,7 @@ export const createProduct = async (req, res, next) => {
     console.log(error);
   }
 };
-//upload img
-export const uploadImage = async (req, res) => {
-  try {
-    const { name } = req.body;
-    const urls = [];
 
-    if (req.method === 'POST') {
-      const files = req.files;
-      for (const file of files) {
-        const { path } = file;
-
-        const result = await cloudinary.uploader.upload(path);
-
-        const data = {
-          url: result.secure_url,
-          id: result.public_id,
-        };
-
-        urls.push(data);
-        fs.unlinkSync(path);
-      }
-    }
-    const userData = {
-      name,
-      img_url: urls,
-    };
-
-    const user2 = await User2.create(userData);
-
-    res.status(201).send({ message: 'successful', data: user2 });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ success: false });
-  }
-};
-//get all products
-export const getImage = async (req, res) => {
-  try {
-    const user2 = await User2.find({}).sort({ createdAt: -1 });
-
-    res.status(200).send({
-      success: true,
-      message: 'All img get successfully ',
-      user2,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
 //get all products
 export const getProducts = async (req, res) => {
   try {
@@ -206,17 +169,19 @@ export const updateProduct = async (req, res) => {
     }
 
     const oldProduct = await Product.findById({ _id: id });
-    const urls = [oldProduct.images];
 
-    if (req.file !== undefined) {
+    const files = req.files;
+
+    let urls = files.length !== 0 ? [] : oldProduct.images;
+
+    if (files.length !== 0) {
       // delete old images
       for (const image of oldProduct.images) {
         const { public_id } = image;
         await cloudinary.uploader.destroy(public_id);
       }
-
+      // urls = [];
       // set new images
-      const files = req.files;
       for (const file of files) {
         const { path } = file;
         const result = await cloudinary.uploader.upload(path);
@@ -246,6 +211,13 @@ export const updateProduct = async (req, res) => {
     );
 
     await product.save();
+
+    // if (!product) {
+    //   for (const url of urls) {
+    //     const { public_id } = url;
+    //     await cloudinary.uploader.destroy(public_id);
+    //   }
+    // }
 
     res.status(201).send({
       success: true,
@@ -500,5 +472,56 @@ export const CancelOrderByUser = async (req, res) => {
       success: true,
       message: 'Order Not Cancel',
     });
+  }
+};
+
+// extra
+//upload img
+export const uploadImage = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const urls = [];
+
+    if (req.method === 'POST') {
+      const files = req.files;
+      for (const file of files) {
+        const { path } = file;
+
+        const result = await cloudinary.uploader.upload(path);
+
+        const data = {
+          url: result.secure_url,
+          id: result.public_id,
+        };
+
+        urls.push(data);
+        fs.unlinkSync(path);
+      }
+    }
+    const userData = {
+      name,
+      img_url: urls,
+    };
+
+    const user2 = await User2.create(userData);
+
+    res.status(201).send({ message: 'successful', data: user2 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false });
+  }
+};
+//get all products
+export const getImage = async (req, res) => {
+  try {
+    const user2 = await User2.find({}).sort({ createdAt: -1 });
+
+    res.status(200).send({
+      success: true,
+      message: 'All img get successfully ',
+      user2,
+    });
+  } catch (error) {
+    console.log(error);
   }
 };
