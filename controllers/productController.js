@@ -367,7 +367,7 @@ export const orderCheckoutWithoutPayment = async (req, res) => {
 //payment gateway api
 const store_id = process.env.SSLCOMMERCE_STORE_ID;
 const store_passwd = process.env.SSLCOMMERCE_STORE_PASSWORD;
-const is_live = true; //true for live, false for sandbox
+const is_live = false; //true for live, false for sandbox
 
 export const OrderCheckout = async (req, res) => {
   try {
