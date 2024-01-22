@@ -85,6 +85,10 @@ export const createProduct = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+      res.status(400).send({
+      success: false,
+      message: 'Product does not Create',
+    });
   }
 };
 
