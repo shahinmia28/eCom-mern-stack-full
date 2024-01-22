@@ -172,7 +172,7 @@ export const updateProduct = async (req, res) => {
 
     const files = req.files;
 
-    let urls = files.length !== 0 ? [] : oldProduct.images;
+    const urls = files.length !== 0 ? [] : oldProduct.images;
 
     if (files.length !== 0) {
       // delete old images
