@@ -85,6 +85,10 @@ export const createProduct = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+      res.status(400).send({
+      success: false,
+      message: 'Product does not Create',
+    });
   }
 };
 
@@ -172,7 +176,7 @@ export const updateProduct = async (req, res) => {
 
     const files = req.files;
 
-    let urls = files.length !== 0 ? [] : oldProduct.images;
+    const urls = files.length !== 0 ? [] : oldProduct.images;
 
     if (files.length !== 0) {
       // delete old images
@@ -371,57 +375,57 @@ const is_live = false; //true for live, false for sandbox
 
 export const OrderCheckout = async (req, res) => {
   try {
-    const { product, user, totalPrice } = req.body;
+    // const { product, user, totalPrice } = req.body;
 
-    const trx_id = new mongoose.Types.ObjectId().toString();
+    // const trx_id = new mongoose.Types.ObjectId().toString();
 
-    const data = {
-      total_amount: totalPrice,
-      currency: 'BDT',
-      tran_id: trx_id, // use unique tran_id for each api call
-      success_url: `${process.env.API_URL}/api/product/payment/success/${trx_id}`,
-      fail_url: `${process.env.API_URL}/api/product/payment/fail/${trx_id}`,
-      cancel_url: `${process.env.API_URL}`,
-      ipn_url: `${process.env.API_URL}`,
-      shipping_method: 'Courier',
-      product_name: 'Computer.',
-      product_category: 'Electronic',
-      product_profile: 'general',
-      cus_name: user?.name,
-      cus_email: user?.email,
-      cus_add1: user?.address,
-      cus_add2: 'Dhaka',
-      cus_city: 'Dhaka',
-      cus_state: 'Dhaka',
-      cus_postcode: '1000',
-      cus_country: 'Bangladesh',
-      cus_phone: user?.phone,
-      cus_fax: '01711111111',
-      ship_name: 'Customer Name',
-      ship_add1: 'Dhaka',
-      ship_add2: 'Dhaka',
-      ship_city: 'Dhaka',
-      ship_state: 'Dhaka',
-      ship_postcode: 1000,
-      ship_country: 'Bangladesh',
-    };
-    // console.log(data);
-    const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
-    sslcz.init(data).then((apiResponse) => {
-      // Redirect the user to payment gateway
-      let GatewayPageURL = apiResponse.GatewayPageURL;
-      res.send({ url: GatewayPageURL });
+    // const data = {
+    //   total_amount: totalPrice,
+    //   currency: 'BDT',
+    //   tran_id: trx_id, // use unique tran_id for each api call
+    //   success_url: `${process.env.API_URL}/api/product/payment/success/${trx_id}`,
+    //   fail_url: `${process.env.API_URL}/api/product/payment/fail/${trx_id}`,
+    //   cancel_url: `${process.env.API_URL}`,
+    //   ipn_url: `${process.env.API_URL}`,
+    //   shipping_method: 'Courier',
+    //   product_name: 'Computer.',
+    //   product_category: 'Electronic',
+    //   product_profile: 'general',
+    //   cus_name: user?.name,
+    //   cus_email: user?.email,
+    //   cus_add1: user?.address,
+    //   cus_add2: 'Dhaka',
+    //   cus_city: 'Dhaka',
+    //   cus_state: 'Dhaka',
+    //   cus_postcode: '1000',
+    //   cus_country: 'Bangladesh',
+    //   cus_phone: user?.phone,
+    //   cus_fax: '01711111111',
+    //   ship_name: 'Customer Name',
+    //   ship_add1: 'Dhaka',
+    //   ship_add2: 'Dhaka',
+    //   ship_city: 'Dhaka',
+    //   ship_state: 'Dhaka',
+    //   ship_postcode: 1000,
+    //   ship_country: 'Bangladesh',
+    // };
+    // // console.log(data);
+    // const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+    // sslcz.init(data).then((apiResponse) => {
+    //   // Redirect the user to payment gateway
+    //   let GatewayPageURL = apiResponse.GatewayPageURL;
+    //   res.send({ url: GatewayPageURL });
 
-      const finalOrder = {
-        products: product,
-        buyer: user._id,
-        totalPrice: totalPrice,
-        payment: false,
-        transaction_id: trx_id,
-      };
-      const result = Order.create(finalOrder);
-      // console.log('Redirecting to: ', GatewayPageURL);
-    });
+    //   const finalOrder = {
+    //     products: product,
+    //     buyer: user._id,
+    //     totalPrice: totalPrice,
+    //     payment: false,
+    //     transaction_id: trx_id,
+    //   };
+    //   const result = Order.create(finalOrder);
+    //   // console.log('Redirecting to: ', GatewayPageURL);
+    // });
   } catch (error) {
     console.log(error);
   }
