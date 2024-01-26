@@ -97,7 +97,7 @@ export const getProducts = async (req, res) => {
   try {
     const products = await Product.find({})
       .populate('category')
-      .limit(12)
+      .limit(500)
       .sort({ createdAt: -1 });
 
     res.status(200).send({
